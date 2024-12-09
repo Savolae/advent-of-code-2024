@@ -9,7 +9,7 @@ enum Block {
 fn main() {
     let input = parse_input(include_str!("../input.txt"));
     println!("Part 1: {}", move_blocks(&input));
-    println!("Part 1: {}", move_files(&input));
+    println!("Part 2: {}", move_files(&input));
 }
 
 fn parse_input(input: &str) -> Vec<u8> {
