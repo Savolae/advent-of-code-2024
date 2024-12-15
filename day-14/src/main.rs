@@ -1,3 +1,5 @@
+use std::cmp;
+
 use itertools::Itertools;
 
 #[derive(Debug, Clone, Copy)]
@@ -82,15 +84,33 @@ impl Map {
 
     fn print(&self, step: usize) -> bool {
         let rows = self.robots.iter().into_group_map_by(|r| r.position.1);
-        let rows_with_many = rows
+        let rows_with_lines = rows
             .values()
-            .map(|row| row.iter().map(|r| r.position.0).collect_vec())
-            .sorted()
-            .filter(|row| row.len() > 25)
+            .map(|row| {
+                row.iter()
+                    .map(|r| r.position.0)
+                    .unique()
+                    .sorted()
+                    .collect_vec()
+            })
+            .filter(|row| {
+                let mut line_len = 0;
+                let mut best_line_len = 0;
+                row.windows(2).for_each(|window| {
+                    if window[1] - window[0] == 1 {
+                        line_len += 1;
+                    } else {
+                        best_line_len = cmp::max(best_line_len, line_len);
+                        line_len = 0
+                    }
+                });
+                best_line_len = cmp::max(best_line_len, line_len);
+                best_line_len > 10
+            })
             .count()
             > 0;
 
-        if !rows_with_many {
+        if !rows_with_lines {
             return false;
         };
 
@@ -113,6 +133,7 @@ fn main() {
     let mut map = parse_input(include_str!("../input.txt"), false);
     println!("Part 1: {}", simulate_steps(100, &mut map, false));
     let mut map = parse_input(include_str!("../input.txt"), false);
+    println!("Part 2:");
     simulate_steps(10000, &mut map, true);
 }
 
